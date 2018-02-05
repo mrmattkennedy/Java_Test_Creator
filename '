@@ -1,0 +1,110 @@
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JButton;
+
+import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.Point;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class TC_VarsPanel extends JPanel implements ActionListener
+{
+	private TC_TableModel tableModel;
+	private JTable table;
+
+	private JButton addBtn;
+	private JButton editBtn;
+	private JButton deleteBtn;
+	private JButton helpBtn;
+	
+	private Font btnFont;
+
+	public TC_VarsPanel()
+	{
+		addBtn = new JButton("Add");
+		editBtn = new JButton("Edit");
+		deleteBtn = new JButton("Delete");
+		helpBtn = new JButton("Help");
+	
+		addBtn.setPreferredSize(new Dimension(100, 40));
+		editBtn.setPreferredSize(new Dimension(100, 40));
+		deleteBtn.setPreferredSize(new Dimension(100, 40));
+		helpBtn.setPreferredSize(new Dimension(100, 40));
+
+		editBtn.addActionListener(this);
+		addBtn.addActionListener(this);
+
+		btnFont = new Font("Helvetica", Font.BOLD, 14);
+		editBtn.setFont(btnFont);
+		deleteBtn.setFont(btnFont);
+		helpBtn.setFont(btnFont);
+		
+		tableModel = new TC_TableModel();
+		table = new JTable(tableModel);
+		addTableMouseListener();
+		table.getColumnModel().getColumn(4).setPreferredWidth(15);
+		table.getColumnModel().getColumn(3).setPreferredWidth(15);
+		
+		//table.setDefaultRenderer(Object.class, new TC_TableCellRenderer()); 
+
+		JScrollPane pane = new JScrollPane(table);
+		pane.setPreferredSize(new Dimension(575, 90));
+
+		add(new JScrollPane(pane));
+		add(addBtn);
+		add(editBtn);
+		add(deleteBtn);
+		add(helpBtn);
+	}
+
+	private void addTableMouseListener()
+	{
+		table.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e){
+				if (e.getClickCount() == 2) {
+					checkValue((table.getValueAt(table.getSelectedRow(), 1).toString()));
+				}
+			}
+		});
+	}
+
+	private void checkValue(String varType)
+	{
+		if (varType.equals("String")) 
+			new TC_StringVarDialogBox();
+		
+	}
+	
+	public void addVariable(String s)
+	{
+		tableModel.addVariable(s);
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		Object source = e.getSource();
+		
+		if (source == addBtn)
+			new TC_AddVarDialog(this);
+
+		else if (source == editBtn) {
+			if (table.getSelectedRow() == -1)
+				return;
+
+			checkValue((table.getValueAt(table.getSelectedRow(), 1).toString()));
+		}
+
+		else if (source == deleteBtn)
+		{
+			if (table.getSelectedRow() == -1)
+				return;
+			System.out.println(table.getSelectedRow());
+			tableModel.removeVariable(table.getSelectedRow());
+		}
+	}
+}

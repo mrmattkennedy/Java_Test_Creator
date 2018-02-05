@@ -1,0 +1,10 @@
+String:
+Can it be empty?
+Default string? Can the string be that?
+Characters the string can't have? 
+Charactes the string must have?
+Specific number of spaces? How many? Can they be first or last char?
+
+if space checks are checked, does space count add up to that?
+if no letters / vars, check illegal / required chars.
+
