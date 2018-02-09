@@ -7,8 +7,8 @@ public class StringIllTableModel extends AbstractTableModel {
 			"Always", 
 			"At most", 
 			"Beginning", 
-			"End", 
-	"Throws"};
+			"Ending", 
+			"Throws"};
 
 	private ArrayList<Character> entryList;
 	private ArrayList<Boolean> alwaysIllegal;
@@ -30,8 +30,8 @@ public class StringIllTableModel extends AbstractTableModel {
 	public void addEntry(char c)
 	{
 		entryList.add(c);
-		alwaysIllegal.add(false);
-		charCounts.add("1");
+		alwaysIllegal.add(true);
+		charCounts.add("0");
 		charBeginning.add(false);
 		charEnd.add(false);
 		expThrows.add(false);

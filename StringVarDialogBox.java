@@ -74,10 +74,26 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	private List<TableCellEditor> illEditor;
 
 	private JPanel finalPanel;
-	
+
 	private String[] reqVarString;
 	private String[] illVarString;
-	
+
+	private final int reqChar = 0;
+	private final int reqCharCount = 1;
+	private final int reqCharBeginning = 2;
+	private final int reqCharEnd = 3;
+	private final int reqCharBefore = 4;
+	private final int reqCharAfter = 5;
+	private final int reqCharThrows = 6;
+
+	private final int illChar = 0;
+	private final int illCharAlways = 1;
+	private final int illCharAtMost = 2;
+	private final int illCharBeginning = 3;
+	private final int illCharEnd = 4;
+	private final int illCharThrows = 4;
+
+
 	public StringVarDialogBox(VarsPanel paFrame, int row) 
 	{
 		firstChecksFont = new Font("Futura", Font.PLAIN, 12);
@@ -211,7 +227,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 				updateIllTable();
 			}
 		});
-		 
+
 		gridPanels[0].add(emptyChkBx);
 		gridPanels[0].add(numbersAllowedChkBx);
 		gridPanels[0].add(lettersAllowedChkBx);
@@ -409,6 +425,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		illegalChars = illegalCharsTxt.getText();
 		requiredChars = requiredCharsTxt.getText();
 
+
 		if (!checkIllegalCharsTxt())
 		{
 			illegalCharsTxt.setBackground(new Color(255, 69, 0));
@@ -424,76 +441,70 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		}
 		else
 			requiredCharsTxt.setBackground(new Color(255, 255, 255));
+
+		if (!checkReqAndIllChars())
+		{
+			requiredCharsTxt.setBackground(new Color(255, 69, 0));
+			illegalCharsTxt.setBackground(new Color(255, 69, 0));
+			return false;
+		}
+		else
+		{
+			illegalCharsTxt.setBackground(new Color(255, 255, 255));
+			requiredCharsTxt.setBackground(new Color(255, 255, 255));
+		}
 		return true;
 	}
 
 	private boolean checkIllegalCharsTxt()
 	{
+
 		String checkString = createString();
 		checkString = checkString.substring(checkString.indexOf(".....") + 5);
+		if (checkString.equals(""))
+			return true;
+
 		String[] checkStringArray = checkString.split("-----");
 		String[][] checkStringArrVars = new String[checkStringArray.length][];
 		for (int i = 0; i < checkStringArrVars.length; i++)
 			checkStringArrVars[i] = checkStringArray[i].split(":::::");
-		
-		String temp = "";
-		for (int i = 0; i < checkStringArrVars.length; i++)
-		{
-			for (int j = 0; j < checkStringArrVars[i].length; j++)
-				temp += checkStringArrVars[i][j];
-			System.out.println("Ill String " + i + ": " + temp);
-			temp = "";
-		}
-		
-		/*
-		if (illegalChars.contains(" "))
-		{
-			if (spaceAtBeginning || spaceAtEnd)
-				return false;
 
-			if (spaceCount != 0)
-				return false;
-		}
+		if (!numbersAllowed)
+			for (int i = 0; i < checkStringArray.length; i++)
+				if (checkStringArrVars[i][illCharAlways].equals("false"))
+					if (Character.isDigit(checkStringArrVars[i][illChar].charAt(0)))
+						return false;
 
-		if (spaceCount == 1)
-		{
-			if (spaceAtBeginning && spaceAtEnd)
-				return false;
+		if (!lettersAllowed)
+			for (int i = 0; i < checkStringArray.length; i++)
+				if (checkStringArrVars[i][illCharAlways].equals("false"))
+					if (Character.isLetter(checkStringArrVars[i][illChar].charAt(0)))
+						return false;
 
-
-		}
-		 */
-		/*
 		if (numbersAllowed)
 		{
-			for (int i = 0; i < illegalChars.length(); i++) {
-				if (Character.isDigit(illegalChars.charAt(i)))
-					return false;
-			}
+			int numCount = 0;
+			for (int i = 0; i < checkStringArray.length; i++)
+				if (checkStringArrVars[i][illCharAlways].equals("true"))
+					if (Character.isDigit(checkStringArrVars[i][illChar].charAt(0)))
+						numCount++;
+
+			if (numCount == 10)
+				return false;
 		}
 
 		if (lettersAllowed)
 		{
-			for (int i = 0; i < illegalChars.length(); i++) {
-				if (Character.isLetter(illegalChars.charAt(i)))
-					return false;
-			}
-		}
-		 */
-		for (int i = 0; i < illegalChars.length(); i++)
-		{
-			for (int j = 0; j < requiredChars.length(); j++)
-			{
-				if (illegalChars.charAt(i) == requiredChars.charAt(j))
-					return false;
-			}
+			int numCount = 0;
+			for (int i = 0; i < checkStringArray.length; i++)
+				if (checkStringArrVars[i][illCharAlways].equals("true"))
+					if (Character.isLetter(checkStringArrVars[i][illChar].charAt(0)))
+						numCount++;
+
+			if (numCount == 52)
+				return false;
 		}
 
-		for (int i = 0; i < illegalChars.length(); i++)
-		{
-			if(illegalChars.indexOf(illegalChars.charAt(i)) != illegalChars.lastIndexOf(illegalChars.charAt(i)))
-				return false;
-		}	
 
 		return true;
 	}
@@ -502,44 +513,185 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	{
 		String checkString = createString();
 		checkString = checkString.substring(0, checkString.indexOf("....."));
+		if (checkString.equals(""))
+			return true;
+
 		String[] checkStringArray = checkString.split("-----");
 		String[][] checkStringArrVars = new String[checkStringArray.length][];
 		for (int i = 0; i < checkStringArrVars.length; i++)
 			checkStringArrVars[i] = checkStringArray[i].split(":::::");
-		
-		String temp = "";
-		for (int i = 0; i < checkStringArrVars.length; i++)
-		{
-			for (int j = 0; j < checkStringArrVars[i].length; j++)
-				temp += checkStringArrVars[i][j];
-			System.out.println("Req String " + i + ": " + temp);
-			temp = "";
-		}
-		//if (requiredChars.contains(" ") && spaceCount == 0)
-		//	return false;
 
 		if (!numbersAllowed)
-		{
-			for (int i = 0; i < requiredChars.length(); i++) {
-				if (Character.isDigit(requiredChars.charAt(i)))
+			for (int i = 0; i < checkStringArray.length; i++)
+				if (Character.isDigit(checkStringArrVars[i][reqChar].charAt(0)))
 					return false;
-			}
-		}
 
 		if (!lettersAllowed)
-		{
-			for (int i = 0; i < requiredChars.length(); i++) {
-				if (Character.isLetter(requiredChars.charAt(i)))
+			for (int i = 0; i < checkStringArray.length; i++)
+				if (Character.isLetter(checkStringArrVars[i][reqChar].charAt(0)))
 					return false;
-			}
-		}
 
-		for (int i = 0; i < requiredChars.length(); i++)
+		for (int i = 0; i < checkStringArray.length; i++)
+			if (Integer.parseInt(checkStringArrVars[i][reqCharCount]) == 0)
+				if (checkStringArrVars[i][reqCharBeginning].equals("true") 
+						|| checkStringArrVars[i][reqCharEnd].equals("true"))
+					return false;
+
+
+		for (int i = 0; i < checkStringArray.length; i++)
+			if (Integer.parseInt(checkStringArrVars[i][reqCharCount]) == 1)
+				if (checkStringArrVars[i][reqCharBeginning].equals("true") 
+						&& checkStringArrVars[i][reqCharEnd].equals("true"))
+					return false;
+
+
+		for (int i = 0; i < checkStringArray.length; i++)
+			if (checkStringArrVars[i][reqCharBeginning].equals("true"))
+				if (!checkStringArrVars[i][reqCharBefore].equals("N/A")
+						&& !checkStringArrVars[i][reqCharBefore].equals("None"))
+					return false;
+
+		for (int i = 0; i < checkStringArray.length; i++)
+			if (checkStringArrVars[i][reqCharEnd].equals("true"))
+				if (!checkStringArrVars[i][reqCharAfter].equals("N/A")
+						&& !checkStringArrVars[i][reqCharAfter].equals("None"))
+					return false;
+
+
+		for (int i = 0; i < checkStringArray.length; i++)
 		{
-			if (requiredChars.indexOf(requiredChars.charAt(i)) != requiredChars.lastIndexOf(requiredChars.charAt(i)))
+			int reqCount = Integer.parseInt(checkStringArrVars[i][reqCharCount]);
+			int totalOtherReqCount = 0;
+			char checkChar = checkStringArrVars[i][reqChar].charAt(0);
+
+			for (int j = 0; j < checkStringArray.length; j++)
+			{
+				if (checkStringArrVars[j][reqChar].equals(checkStringArrVars[i][reqChar]))
+					continue;
+
+				if (!nonSpecificIdentifier(checkStringArrVars, i, reqCharBefore))
+					if ((checkStringArrVars[j][reqCharBefore].charAt(1) == checkChar)
+							|| (checkStringArrVars[j][reqCharAfter].charAt(1) == checkChar))
+						totalOtherReqCount +=1;
+			}
+			if (totalOtherReqCount > reqCount)
 				return false;
 		}
+
+		for (int i = 0; i < checkStringArray.length; i++)
+		{
+			if (!nonSpecificIdentifier(checkStringArrVars, i, reqCharBefore))
+			{
+				char checkBefore =  checkStringArrVars[i][reqCharBefore].charAt(1);
+				char checkChar = checkStringArrVars[i][reqChar].charAt(0);
+				
+				for (int j = 0; j < checkStringArray.length; j++)
+					if (checkStringArrVars[j][reqChar].charAt(0) == checkBefore && (j != i))
+						if (checkStringArrVars[j][reqCharAfter].charAt(1) != checkChar
+								|| nonSpecificIdentifier(checkStringArrVars, j, reqCharAfter))
+							return false;
+			}
+
+		}
+		
+		for (int i = 0; i < checkStringArray.length; i++)
+		{
+			if (!nonSpecificIdentifier(checkStringArrVars, i, reqCharAfter))
+			{
+				char checkAfter =  checkStringArrVars[i][reqCharAfter].charAt(1);
+				char checkChar = checkStringArrVars[i][reqChar].charAt(0);
+				
+				for (int j = 0; j < checkStringArray.length; j++)
+					if (checkStringArrVars[j][reqChar].charAt(0) == checkAfter && (j != i))
+						if (checkStringArrVars[j][reqCharBefore].charAt(1) != checkChar
+								|| nonSpecificIdentifier(checkStringArrVars, j, reqCharBefore))
+							return false;
+			}
+
+		}
+
+
+
 		return true;
+	}
+
+	private boolean checkReqAndIllChars()
+	{
+		String checkString = createString();
+		String checkReqString = checkString.substring(0, checkString.indexOf("....."));
+		String[] checkReqStringArray = checkReqString.split("-----");
+		String[][] checkReqStringArrVars = new String[checkReqStringArray.length][];
+		for (int i = 0; i < checkReqStringArrVars.length; i++)
+			checkReqStringArrVars[i] = checkReqStringArray[i].split(":::::");
+
+		String checkIllString = checkString.substring(checkString.indexOf(".....") + 5);
+		String[] checkIllStringArray = checkIllString.split("-----");
+		String[][] checkIllStringArrVars = new String[checkIllStringArray.length][];
+		for (int i = 0; i < checkIllStringArrVars.length; i++)
+			checkIllStringArrVars[i] = checkIllStringArray[i].split(":::::");
+
+		if (checkIllString.equals("") || checkReqString.equals(""))
+			return true;
+
+		for (int i = 0; i < checkReqStringArray.length; i++)
+			for (int j = 0; j < checkIllStringArray.length; j++)
+				if (checkIllStringArrVars[j][illCharAlways].equals("true"))
+					if (checkReqStringArrVars[i][reqChar].equals(checkIllStringArrVars[j][illChar]))
+						return false;
+
+		for (int i = 0; i < checkReqStringArray.length; i++)
+			for (int j = 0; j < checkIllStringArray.length; j++)
+				if (checkIllStringArrVars[j][illCharBeginning].equals("true")) 
+					if (checkReqStringArrVars[i][reqChar].equals(checkIllStringArrVars[j][illChar]))
+						if (checkReqStringArrVars[i][reqCharBeginning].equals("true"))
+							return false;
+
+		for (int i = 0; i < checkReqStringArray.length; i++)
+			for (int j = 0; j < checkIllStringArray.length; j++)	 
+				if (checkIllStringArrVars[j][illCharEnd].equals("true"))
+					if (checkReqStringArrVars[i][reqChar].equals(checkIllStringArrVars[j][illChar]))
+						if (checkReqStringArrVars[i][reqCharEnd].equals("true"))
+							return false;
+
+		for (int i = 0; i < checkReqStringArray.length; i++)
+			for (int j = 0; j < checkIllStringArray.length; j++)	
+				if (checkIllStringArrVars[j][illCharAlways].equals("false"))
+					if (Integer.parseInt(checkIllStringArrVars[j][illCharAtMost]) < 
+							Integer.parseInt(checkIllStringArrVars[j][reqCharCount]))
+						return false;
+
+		for (int i = 0; i < checkReqStringArray.length; i++)
+			for (int j = 0; j < checkIllStringArray.length; j++)	
+				if (checkIllStringArrVars[j][illCharAlways].equals("true"))
+					if (!nonSpecificIdentifier(checkReqStringArrVars, i, reqCharBefore))
+						if (checkReqStringArrVars[i][reqCharBefore].charAt(1) 
+								== (checkIllStringArrVars[j][illChar].charAt(0)))
+
+							return false;
+
+		for (int i = 0; i < checkReqStringArray.length; i++)
+			for (int j = 0; j < checkIllStringArray.length; j++)	
+				if (checkIllStringArrVars[j][illCharAlways].equals("true"))
+					if (!nonSpecificIdentifier(checkReqStringArrVars, i, reqCharAfter))
+						if (checkReqStringArrVars[i][reqCharAfter].charAt(1) 
+								== (checkIllStringArrVars[j][illChar].charAt(0)))
+
+							return false;
+
+
+		return true;
+	}
+
+	private boolean nonSpecificIdentifier(String[][] checkArray, int i, int beforeOrAfter)
+	{
+		if (checkArray[i][beforeOrAfter].equals("N/A")
+				|| checkArray[i][beforeOrAfter].equals("None")
+				|| checkArray[i][beforeOrAfter].equals("Any")
+				|| checkArray[i][beforeOrAfter].equals("Any #")
+				|| checkArray[i][beforeOrAfter].equals("Any char"))
+			return true;
+
+		return false;
 	}
 
 	public String getValueAt(int row, int column)
@@ -551,38 +703,41 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	private String createString()
 	{
 		String retString = "";
-		
+
 		reqVarString = new String[reqTableModel.getRowCount()];
 		illVarString = new String[illTableModel.getRowCount()];
-		
+
 		for (int i = 0; i < reqVarString.length; i++)
 			reqVarString[i] = new String();
-		
-		for (int i = 0; i < reqVarString.length; i++)
+
+		for (int i = 0; i < illVarString.length; i++)
 			illVarString[i] = new String();
-		
+
 		for (int i = 0; i < reqVarString.length; i++)
 		{
 			for (int j = 0; j < reqTableModel.getColumnCount(); j++)	
 				reqVarString[i] += reqTableModel.getValueAt(i, j) + ":::::";
 			reqVarString[i] += "-----";
 		}
-		
+
 		for (int i = 0; i < illVarString.length; i++)
 		{
 			for (int j = 0; j < illTableModel.getColumnCount(); j++)
+			{
 				illVarString[i] += illTableModel.getValueAt(i, j) + ":::::";
+				//System.out.println("Value at " + i + ": " + illTableModel.getValueAt(i, j));
+			}
 			illVarString[i] += "-----";
 		}
-		
+
 		for (int i = 0; i < reqVarString.length; i++)
 			retString += reqVarString[i];
-		
+
 		retString += ".....";
-		
+
 		for (int i = 0; i < illVarString.length; i++)
 			retString += illVarString[i];
-		
+
 		return retString;
 	}
 
