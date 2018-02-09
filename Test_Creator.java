@@ -37,7 +37,7 @@ class Test_Creator {
 		frame.setResizable(false);
 		frame.setVisible(true);
 		
-		TC_TabbedPane tabbedPane = new TC_TabbedPane();
+		TabbedPane tabbedPane = new TabbedPane();
 		frame.add(tabbedPane);
 	}
 }

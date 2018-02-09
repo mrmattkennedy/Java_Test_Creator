@@ -7,4 +7,8 @@ Specific number of spaces? How many? Can they be first or last char?
 
 if space checks are checked, does space count add up to that?
 if no letters / vars, check illegal / required chars.
+string must be specific length?
 
+Col 4 = 364, starts at 0. Increments 16,
+5 = 475.
+1 = 86
