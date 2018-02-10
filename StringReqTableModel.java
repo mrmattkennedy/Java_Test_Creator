@@ -52,6 +52,18 @@ public class StringReqTableModel extends AbstractTableModel {
 		repaintTable();
 	}
 	
+	public void addPatternChar(char c, String before, String after)
+	{
+		entryList.add(c);
+		charCounts.add("1");
+		charBeginning.add(false);
+		charEnd.add(false);
+		charBefore.add(before);
+		charAfter.add(after);
+		expThrows.add(false);
+		repaintTable();
+	}
+	
 	public void removeEntry(char c)
 	{
 		int index = -1;

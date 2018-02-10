@@ -37,12 +37,15 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 
 	private JTextField illegalCharsTxt;
 	private JTextField requiredCharsTxt;
+	private JTextField patternTxt;
+
+	private JLabel patternLbl;
 
 	private JButton okBtn;
 	private JButton helpBtn;
 	private JButton cancelBtn;
 
-	private final int numPanels = 3;
+	private final int numPanels = 4;
 	private JPanel[] gridPanels;
 
 	private boolean emptyAllowed;
@@ -53,6 +56,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	private String illegalChars = "";
 	private String prevRequiredChars = "";
 	private String prevIllegalChars = "";
+	private String patternInput = "";
 
 	private Font firstChecksFont;
 
@@ -193,6 +197,8 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		illegalCharsTxt.setPreferredSize(new Dimension(150, 20));
 		requiredCharsTxt = new JTextField("");
 		requiredCharsTxt.setPreferredSize(new Dimension(150, 20));
+		patternTxt = new JTextField("");
+		patternTxt.setPreferredSize(new Dimension(150, 20));
 
 		requiredCharsTxt.getDocument().addDocumentListener(new DocumentListener() {
 			public void changedUpdate(DocumentEvent e) {
@@ -206,7 +212,6 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 			}
 
 			public void updateTableInner() {
-				//illegalCharsTxt.setText(checkDuplicateChars(illegalCharsTxt.getText()));
 				updateReqTable();
 			}
 		});
@@ -223,10 +228,12 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 			}
 
 			public void updateTableInner() {
-				//illegalCharsTxt.setText(checkDuplicateChars(illegalCharsTxt.getText()));
 				updateIllTable();
 			}
 		});
+
+		patternLbl = new JLabel("");
+		patternLbl.setPreferredSize(new Dimension(150, 20));
 
 		gridPanels[0].add(emptyChkBx);
 		gridPanels[0].add(numbersAllowedChkBx);
@@ -235,12 +242,20 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		gridPanels[1].add(illegalCharsTxt);
 		gridPanels[1].add(new JLabel("Required chars: "));
 		gridPanels[1].add(requiredCharsTxt);
-		gridPanels[2].add(okBtn);
-		gridPanels[2].add(helpBtn);
-		gridPanels[2].add(cancelBtn);
+		gridPanels[2].add(new JLabel("Pattern: "));
+		gridPanels[2].add(patternTxt);
+		gridPanels[2].add(new JLabel());
+		gridPanels[2].add(patternLbl);
+		gridPanels[3].add(okBtn);
+		gridPanels[3].add(helpBtn);
+		gridPanels[3].add(cancelBtn);
 
+		gridPanels[0].setLayout(new GridLayout(1, 3, 10, 15));
+		gridPanels[1].setLayout(new GridLayout(1, 4, 10, 15));
+		gridPanels[2].setLayout(new GridLayout(1, 3, 10, 15));
+		gridPanels[3].setLayout(new GridLayout(1, 4, 10, 15));
 		finalPanel = new JPanel();
-		finalPanel.setLayout(new GridLayout(numPanels, 1));
+		finalPanel.setLayout(new GridLayout(numPanels, 1, 5, 5));
 		for (int i = 0; i < numPanels; i++)
 			finalPanel.add(gridPanels[i]);
 
@@ -250,8 +265,8 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		this.paFrame = paFrame;
 		this.row = row;
 
-		setLayout(new GridLayout(3, 1));
-		setSize(600, 400);
+		setLayout(new GridLayout(3, 1, 5, 5));
+		setSize(600, 500);
 		setLocationRelativeTo(null);
 		setModal(true);
 		setResizable(false);
@@ -259,16 +274,75 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		setVisible(true);	
 	}
 
+	private boolean checkPatternTxt()
+	{
+		patternInput = patternTxt.getText();
+		patternLbl.setText(patternInput);
+		//String[] parsePattern = 
+		String[] parsedStr = parsePatternTxt();
+		for (int i = 0; i < parsedStr.length; i++)
+			System.out.println(parsedStr[i]);
+		return true;
+	}
+	
+	private String[] parsePatternTxt()
+	{
+		ArrayList<String> surrNumStr = findStringBetweenPatternInput("#");
+		ArrayList<String> surrChStr = findStringBetweenPatternInput("*");
+		String[] retArr = new String[surrNumStr.size() + surrChStr.size() + 1];
+		
+		int currIndex = 0;
+		for (String curr : surrNumStr)
+		{
+			retArr[currIndex] = curr;
+			currIndex++;
+		}
+		retArr[currIndex] = " ";
+		currIndex++;
+		for (String curr : surrChStr)
+		{
+			retArr[currIndex] = curr;
+			currIndex++;
+		}
+		return retArr;
+	}
+	
+	private ArrayList<String> findStringBetweenPatternInput(String splitChar)
+	{
+		int index = -1;
+		String tempStr = "";
+		ArrayList<String> temp = new ArrayList<String>();
+		while(patternInput.indexOf(splitChar, index+1) >= 0) {
+		    index = patternInput.indexOf(splitChar, index+1);
+		    tempStr = "";
+		    if (index != -1 && (index <= (patternInput.length() - 3)) && (patternInput.indexOf(splitChar, index+1) >= 0))
+		    {
+		    	int tempIndex = 1;
+		    	while (patternInput.charAt(index + tempIndex) != splitChar.charAt(0))
+		    	{
+		    		tempStr += patternInput.charAt(index + tempIndex);
+		    		tempIndex++;
+		    	}
+		    	temp.add(tempStr);
+		    }
+		}
+		
+		return temp;
+		
+	}
+
 	private void updateReqTable()
 	{
-		requiredChars = checkDuplicateChars(requiredCharsTxt.getText());
-		String difference = getStringDifference(requiredChars, prevRequiredChars);
+		requiredChars = requiredCharsTxt.getText();
+		String difference = getReqStringDifference(requiredChars, prevRequiredChars);
 		if (difference.equals(":::"))
 			return;
 
 		String addChars = difference.substring(0, difference.indexOf(":::"));
 		String removeChars = difference.substring(difference.indexOf(":::") + 3);
 		int[] removeCharIndeces = new int[removeChars.length()];
+		for (int i = 0; i < removeCharIndeces.length; i++)
+			removeCharIndeces[i] = -1;
 
 		if (addChars.length() != 0)
 			for (int i = 0; i < addChars.length(); i++)
@@ -281,8 +355,19 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 			for (int j = 0; j < reqTableModel.getRowCount(); j++)
 				if (removeChars.charAt(i) == (char)(reqTableModel.getValueAt(j, 0)))
 				{
-					removeCharIndeces[i] = j;
-					break;
+					boolean add = true;
+					for (int k = 0; k < removeCharIndeces.length; k++)
+						if (removeCharIndeces[k] == j)
+						{
+							add = false;
+							break;
+						}
+
+					if (add)
+					{
+						removeCharIndeces[i] = j;
+						break;
+					}
 				}
 
 		if (removeChars.length() != 0)
@@ -298,7 +383,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	private void updateIllTable()
 	{
 		illegalChars = checkDuplicateChars(illegalCharsTxt.getText());
-		String difference = getStringDifference(illegalChars, prevIllegalChars);
+		String difference = getIllStringDifference(illegalChars, prevIllegalChars);
 		if (difference.equals(":::"))
 			return;
 
@@ -383,7 +468,51 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		return retStr;
 	}
 
-	private String getStringDifference(String curr, String prev)
+	private String getReqStringDifference(String curr, String prev)
+	{
+		String retString = "";
+		boolean addChar = true;
+		StringBuilder tempPrev = new StringBuilder(prev);
+		//Get chars that are now in curr, and weren't in prev.
+		for (int i = 0; i < curr.length(); i++)
+		{
+			addChar = true;
+			for (int j = 0; j < tempPrev.length(); j++)
+				if (curr.charAt(i) == tempPrev.charAt(j))
+				{
+					addChar = false;
+					tempPrev.setCharAt(j, Character.MIN_VALUE);
+					break;
+				}
+			if (addChar)
+				retString += curr.charAt(i);
+
+		}
+
+		//Opposite of above. Logic is good because, if in prev and not in curr, then it's not there anymore.
+		//Very interesting!! When textfield text is selected, then other text is pasted over,
+		//this registers as 2 events. One will remove the highlighted text FIRST, THEN the new text
+		//is pasted in.
+		retString += ":::";
+		StringBuilder tempCurr = new StringBuilder(curr);
+		for (int i = 0; i < prev.length(); i++)
+		{
+			addChar = true;
+			for (int j = 0; j < tempCurr.length(); j++)
+				if (prev.charAt(i) == tempCurr.charAt(j))
+				{
+					addChar = false;
+					tempCurr.setCharAt(j, Character.MIN_VALUE);
+					break;
+				}
+			if (addChar)
+				retString += prev.charAt(i);
+		}
+		return retString;
+
+	}
+
+	private String getIllStringDifference(String curr, String prev)
 	{
 		String retString = "";
 		boolean addChar = true;
@@ -453,6 +582,15 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 			illegalCharsTxt.setBackground(new Color(255, 255, 255));
 			requiredCharsTxt.setBackground(new Color(255, 255, 255));
 		}
+		
+		if (!checkPatternTxt())
+		{
+			patternTxt.setBackground(new Color(255, 69, 0));
+			return false;
+		}
+		else
+			patternTxt.setBackground(new Color(255, 255, 255));
+		
 		return true;
 	}
 
@@ -500,7 +638,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 				if (checkStringArrVars[i][illCharAlways].equals("true"))
 					if (Character.isLetter(checkStringArrVars[i][illChar].charAt(0)))
 						numCount++;
-
+			
 			if (numCount == 52)
 				return false;
 		}
@@ -584,27 +722,27 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 			{
 				char checkBefore =  checkStringArrVars[i][reqCharBefore].charAt(1);
 				char checkChar = checkStringArrVars[i][reqChar].charAt(0);
-				
+
 				for (int j = 0; j < checkStringArray.length; j++)
 					if (checkStringArrVars[j][reqChar].charAt(0) == checkBefore && (j != i))
 						if (checkStringArrVars[j][reqCharAfter].charAt(1) != checkChar
-								|| nonSpecificIdentifier(checkStringArrVars, j, reqCharAfter))
+						|| nonSpecificIdentifier(checkStringArrVars, j, reqCharAfter))
 							return false;
 			}
 
 		}
-		
+
 		for (int i = 0; i < checkStringArray.length; i++)
 		{
 			if (!nonSpecificIdentifier(checkStringArrVars, i, reqCharAfter))
 			{
 				char checkAfter =  checkStringArrVars[i][reqCharAfter].charAt(1);
 				char checkChar = checkStringArrVars[i][reqChar].charAt(0);
-				
+
 				for (int j = 0; j < checkStringArray.length; j++)
 					if (checkStringArrVars[j][reqChar].charAt(0) == checkAfter && (j != i))
 						if (checkStringArrVars[j][reqCharBefore].charAt(1) != checkChar
-								|| nonSpecificIdentifier(checkStringArrVars, j, reqCharBefore))
+						|| nonSpecificIdentifier(checkStringArrVars, j, reqCharBefore))
 							return false;
 			}
 
