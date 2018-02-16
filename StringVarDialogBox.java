@@ -5,7 +5,9 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
@@ -15,6 +17,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -30,7 +33,6 @@ import javax.swing.table.TableCellEditor;
 public class StringVarDialogBox extends JDialog implements ActionListener
 {
 	private final int[] dialogCols = {1, 4, 5};
-	//private final String[] dialogColCoords = {"86", "364", "475"};
 	private JCheckBox emptyChkBx;
 	private JCheckBox numbersAllowedChkBx;
 	private JCheckBox lettersAllowedChkBx;
@@ -39,7 +41,8 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	private JTextField requiredCharsTxt;
 	private JTextField patternTxt;
 
-	private JLabel patternLbl;
+	private JRadioButton usePattern;
+	private JRadioButton useTables;
 
 	private JButton okBtn;
 	private JButton helpBtn;
@@ -96,11 +99,18 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	private final int illCharBeginning = 3;
 	private final int illCharEnd = 4;
 	private final int illCharThrows = 4;
-
-
 	public StringVarDialogBox(VarsPanel paFrame, int row) 
 	{
-		firstChecksFont = new Font("Futura", Font.PLAIN, 12);
+		
+		usePattern = new JRadioButton("Use pattern");
+		useTables = new JRadioButton("Use tables");
+		usePattern.addActionListener(this);
+		useTables.addActionListener(this);
+		useTables.setSelected(true);
+		//usePattern.setFont(radioFonts);
+		//useTables.setFont(radioFonts);
+		//usePattern.setPreferredSize(new Dimension(100, 20));
+		//useTables.setPreferredSize(new Dimension(100, 20));
 		gridPanels = new JPanel[numPanels];
 		for (int i = 0; i < numPanels; i++)
 			gridPanels[i] = new JPanel();
@@ -231,10 +241,8 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 				updateIllTable();
 			}
 		});
-
-		patternLbl = new JLabel("");
-		patternLbl.setPreferredSize(new Dimension(150, 20));
-
+		
+		patternTxt.setEnabled(false);
 		gridPanels[0].add(emptyChkBx);
 		gridPanels[0].add(numbersAllowedChkBx);
 		gridPanels[0].add(lettersAllowedChkBx);
@@ -244,8 +252,8 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		gridPanels[1].add(requiredCharsTxt);
 		gridPanels[2].add(new JLabel("Pattern: "));
 		gridPanels[2].add(patternTxt);
-		gridPanels[2].add(new JLabel());
-		gridPanels[2].add(patternLbl);
+		gridPanels[2].add(usePattern);
+		gridPanels[2].add(useTables);
 		gridPanels[3].add(okBtn);
 		gridPanels[3].add(helpBtn);
 		gridPanels[3].add(cancelBtn);
@@ -272,16 +280,80 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		setResizable(false);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setVisible(true);	
+
 	}
 
 	private boolean checkPatternTxt()
 	{
 		patternInput = patternTxt.getText();
-		patternLbl.setText(patternInput);
+		if (!checkPatternSymbolBalance())
+			return false;
 		//String[] parsePattern = 
 		String[] parsedStr = parsePatternTxt();
-		for (int i = 0; i < parsedStr.length; i++)
-			System.out.println(parsedStr[i]);
+		if (!numbersAllowed)
+			for (String line : parsedStr)
+			{
+				if (line.contains("#"))
+					return false;
+				
+				for (int i = 0; i < line.length(); i++)
+					if (Character.isDigit(line.charAt(i)))
+						return false;
+			}
+		
+		if (!lettersAllowed)
+			for (String line : parsedStr)
+			{
+				if (line.contains("*"))
+					return false;
+				
+				for (int i = 0; i < line.length(); i++)
+					if (Character.isAlphabetic(line.charAt(i)))
+						return false;
+			}
+		
+		return true;
+	}
+	
+	private boolean checkPatternSymbolBalance()
+	{
+		Stack<Character> checkSymbols = new Stack<Character>();
+		if (patternInput.charAt(0) == '#' || patternInput.charAt(0) == '*')
+			checkSymbols.push(patternInput.charAt(0));
+		for (int i = 1; i < patternInput.length(); i++)
+		{
+			if (patternInput.charAt(i) == '#' || patternInput.charAt(i) == '*')
+				if (patternInput.charAt(i-1) != '/')
+					checkSymbols.push(patternInput.charAt(i));
+		}
+		
+		Iterator<Character> iter = checkSymbols.iterator();
+		
+		System.out.println((checkSymbols.size() % 2) + ", size is " + checkSymbols.size());
+		if (!(checkSymbols.size() % 2 == 0))
+			return false;
+		
+		int currIndex = 0;
+		char[] symbolsArr = new char[checkSymbols.size()];
+		//ex: size 10, 0-9. First half:0-4, 5-9
+		while (iter.hasNext())
+		{
+			symbolsArr[currIndex] = iter.next();
+			currIndex++;
+		}
+		
+		int halfwaySize = checkSymbols.size() / 2;
+		String firstHalf = "";
+		for (int i = 0; i < halfwaySize; i++)
+			firstHalf+= symbolsArr[i];
+		
+		String secondHalf = "";
+		for (int i = halfwaySize; i < symbolsArr.length; i++)
+			secondHalf+= symbolsArr[i];
+		
+		if (!firstHalf.equals(new StringBuilder(secondHalf).reverse().toString()))
+			return false;
+		
 		return true;
 	}
 	
@@ -550,47 +622,51 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		emptyAllowed = emptyChkBx.isSelected();
 		numbersAllowed = numbersAllowedChkBx.isSelected();
 		lettersAllowed = lettersAllowedChkBx.isSelected();
-
-		illegalChars = illegalCharsTxt.getText();
-		requiredChars = requiredCharsTxt.getText();
-
-
-		if (!checkIllegalCharsTxt())
-		{
-			illegalCharsTxt.setBackground(new Color(255, 69, 0));
-			return false;
-		}
-		else
-			illegalCharsTxt.setBackground(new Color(255, 255, 255));
-
-		if (!checkRequiredCharsTxt())
-		{
-			requiredCharsTxt.setBackground(new Color(255, 69, 0));
-			return false;
-		}
-		else
-			requiredCharsTxt.setBackground(new Color(255, 255, 255));
-
-		if (!checkReqAndIllChars())
-		{
-			requiredCharsTxt.setBackground(new Color(255, 69, 0));
-			illegalCharsTxt.setBackground(new Color(255, 69, 0));
-			return false;
-		}
-		else
-		{
-			illegalCharsTxt.setBackground(new Color(255, 255, 255));
-			requiredCharsTxt.setBackground(new Color(255, 255, 255));
-		}
 		
-		if (!checkPatternTxt())
+		if (useTables.isSelected())
 		{
-			patternTxt.setBackground(new Color(255, 69, 0));
-			return false;
+			illegalChars = illegalCharsTxt.getText();
+			requiredChars = requiredCharsTxt.getText();
+	
+	
+			if (!checkIllegalCharsTxt())
+			{
+				illegalCharsTxt.setBackground(new Color(255, 69, 0));
+				return false;
+			}
+			else
+				illegalCharsTxt.setBackground(new Color(255, 255, 255));
+	
+			if (!checkRequiredCharsTxt())
+			{
+				requiredCharsTxt.setBackground(new Color(255, 69, 0));
+				return false;
+			}
+			else
+				requiredCharsTxt.setBackground(new Color(255, 255, 255));
+	
+			if (!checkReqAndIllChars())
+			{
+				requiredCharsTxt.setBackground(new Color(255, 69, 0));
+				illegalCharsTxt.setBackground(new Color(255, 69, 0));
+				return false;
+			}
+			else
+			{
+				illegalCharsTxt.setBackground(new Color(255, 255, 255));
+				requiredCharsTxt.setBackground(new Color(255, 255, 255));
+			}
+			
+			
+		} else {
+			if (!checkPatternTxt())
+			{
+				patternTxt.setBackground(new Color(255, 69, 0));
+				return false;
+			}
+			else
+				patternTxt.setBackground(new Color(255, 255, 255));
 		}
-		else
-			patternTxt.setBackground(new Color(255, 255, 255));
-		
 		return true;
 	}
 
@@ -892,7 +968,24 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 					"Click on cells in columns labeled \"Count\", \"Char Before\", & \"Char After\" to see combo box.\n" + 
 					"Beginning means the character needs to be at the beginning, not just can. Same for end.\n" + 
 					"Throws means, if that character isn't following the required rules, an exception of some kind is throw.\n");
-
+		else if (source == usePattern)
+		{
+			useTables.setSelected(false);
+			requiredCharsTxt.setText("");
+			requiredCharsTxt.setEnabled(false);
+			illegalCharsTxt.setText("");
+			illegalCharsTxt.setEnabled(false);
+			reqTableModel.removeAll();
+			illTableModel.removeAll();
+			patternTxt.setEnabled(true);
+		}
+		else if (source == useTables)
+		{
+			usePattern.setSelected(false);
+			requiredCharsTxt.setEnabled(true);
+			illegalCharsTxt.setEnabled(true);
+			patternTxt.setEnabled(false);
+		}
 	}
 }
 

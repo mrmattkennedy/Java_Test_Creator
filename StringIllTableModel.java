@@ -38,6 +38,16 @@ public class StringIllTableModel extends AbstractTableModel {
 
 		repaintTable();
 	}
+	
+	public void removeAll()
+	{
+		entryList.clear();
+		alwaysIllegal.clear();
+		charCounts.clear();
+		charBeginning.clear();
+		charEnd.clear();
+		expThrows.clear();
+	}
 
 	private void repaintTable() 
 	{

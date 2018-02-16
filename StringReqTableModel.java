@@ -52,15 +52,15 @@ public class StringReqTableModel extends AbstractTableModel {
 		repaintTable();
 	}
 	
-	public void addPatternChar(char c, String before, String after)
+	public void removeAll()
 	{
-		entryList.add(c);
-		charCounts.add("1");
-		charBeginning.add(false);
-		charEnd.add(false);
-		charBefore.add(before);
-		charAfter.add(after);
-		expThrows.add(false);
+		entryList.clear();
+		charCounts.clear();
+		charBeginning.clear();
+		charEnd.clear();
+		charBefore.clear();
+		charAfter.clear();
+		expThrows.clear();
 		repaintTable();
 	}
 	
