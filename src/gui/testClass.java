@@ -6,6 +6,8 @@ public class testClass {
 	String s1;
 	public static void main(String[] args)
 	{
+		boolean t = false;
+		System.out.println(t);
 		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
 		Thread[] threadArray = threadSet.toArray(new Thread[threadSet.size()]);
 		

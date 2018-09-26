@@ -298,6 +298,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		{
 			if (!numbersAllowed)
 			{
+				//Generic placeholder for any number.
 				if (flag.contains("#"))
 					return false;
 					
@@ -305,6 +306,8 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 					if (Character.isDigit(flag.charAt(i)))
 						return false;
 			} else if (!lettersAllowed)	{
+				
+				//Generic placeholder for any char.
 				if (flag.contains("*"))
 					return false;
 				
@@ -314,13 +317,45 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 			}
 			
 			Stack<Character> checkSymbols = new Stack<Character>();
+			boolean isNumbers = false;
+			boolean firstCheck = true;
 			for (int i = 0; i < flag.length(); i++) {
 				//If the first symbol is + or - and it isn't the first one or preceded by _, return false.
-				if (flag.charAt(i) == '+' || flag.charAt(i) == '-') 
-					if (i != 0 || flag.charAt(i) != '_') {
+				if (flag.charAt(i) == '+' || flag.charAt(i) == '-') {
+					if (i != 0 && flag.charAt(i - 1) != '_')
+						return false;
+					//+ or - only for digits.
+					else if (!Character.isDigit(flag.charAt(i + 1)) && i < flag.length() - 1)
+						return false;
+					checkSymbols.push('1');
+				//Check if char is digit or num. If boolean flips, return false.
+				} else if (flag.charAt(i) != '_') {
+					if (!firstCheck)
+						if (Character.isDigit(flag.charAt(i)) != isNumbers)
+							return false;
+					else
+						firstCheck = false;
+							
+					isNumbers = (Character.isDigit(flag.charAt(i))) ? true : false;
+					
+					//One char to the right of each char should only be another char or underscore..
+					if (i < flag.length() - 1 && (!Character.isLetterOrDigit(flag.charAt(i + 1))) && flag.charAt(i + 1) != '_')
 						return false;
 				}
 			}
+			
+			//More than 2 + or -
+			if (checkSymbols.size() > 2)
+				return false;
+			
+			//Check if there is more than one _ in the flag.
+			checkSymbols.clear();
+			for (int j = 0; j < flag.length(); j++)
+					if (flag.charAt(j) == '_')
+						checkSymbols.push('1');
+			
+			if (checkSymbols.size() > 1)
+				return false;
 		}	
 		
 		return true;
@@ -367,7 +402,9 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		    }
 		}
 		
-		return ((String[])temp.toArray());
+		String[] tempArr = new String[temp.size()]; 
+		tempArr = temp.toArray(tempArr);
+		return tempArr;
 	}
 
 	private void updateReqTable()
