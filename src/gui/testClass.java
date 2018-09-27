@@ -3,6 +3,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class testClass {
+	String s1;
 	public static void main(String[] args)
 	{
 		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();

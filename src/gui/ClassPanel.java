@@ -48,7 +48,7 @@ public class ClassPanel extends JPanel implements ActionListener {
 	{
 		setLayout(new GridBagLayout());
 
-		classInput = new JTextField("H:\\My Documents\\JTC\\Java_Test_Creator-master\\Test_File.java");
+		classInput = new JTextField(System.getProperty("user.dir") + "/src/gui/Test_File.java");
 
 		searchBtn = new JButton("Search");
 		createVarsBtn = new JButton("Create");

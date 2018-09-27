@@ -291,29 +291,37 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		patternInput = patternTxt.getText();
 		if (!checkPatternSymbolBalance())
 			return false;
-		//String[] parsePattern = 
+		//Checks if the appropriate symbols are in place here.
+		//Valid symbols: +, -, _
 		String[] parsedStr = parsePatternTxt();
-		if (!numbersAllowed)
-			for (String line : parsedStr)
+		for (String flag : parsedStr)
+		{
+			if (!numbersAllowed)
 			{
-				if (line.contains("#"))
+				if (flag.contains("#"))
+					return false;
+					
+				for (int i = 0; i < flag.length(); i++)
+					if (Character.isDigit(flag.charAt(i)))
+						return false;
+			} else if (!lettersAllowed)	{
+				if (flag.contains("*"))
 					return false;
 				
-				for (int i = 0; i < line.length(); i++)
-					if (Character.isDigit(line.charAt(i)))
+				for (int i = 0; i < flag.length(); i++)
+					if (Character.isAlphabetic(flag.charAt(i)))
 						return false;
 			}
-		
-		if (!lettersAllowed)
-			for (String line : parsedStr)
-			{
-				if (line.contains("*"))
-					return false;
-				
-				for (int i = 0; i < line.length(); i++)
-					if (Character.isAlphabetic(line.charAt(i)))
+			
+			Stack<Character> checkSymbols = new Stack<Character>();
+			for (int i = 0; i < flag.length(); i++) {
+				//If the first symbol is + or - and it isn't the first one or preceded by _, return false.
+				if (flag.charAt(i) == '+' || flag.charAt(i) == '-') 
+					if (i != 0 || flag.charAt(i) != '_') {
 						return false;
+				}
 			}
+		}	
 		
 		return true;
 	}
@@ -321,81 +329,36 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	private boolean checkPatternSymbolBalance()
 	{
 		Stack<Character> checkSymbols = new Stack<Character>();
-		if (patternInput.charAt(0) == '#' || patternInput.charAt(0) == '*')
-			checkSymbols.push(patternInput.charAt(0));
-		for (int i = 1; i < patternInput.length(); i++)
-		{
-			if (patternInput.charAt(i) == '#' || patternInput.charAt(i) == '*')
+		
+		for (int i = 0; i < patternInput.length(); i++)
+			if (patternInput.charAt(i) == '(') {
+				if (i == 0 || patternInput.charAt(i-1) != '/')
+					if (checkSymbols.isEmpty())
+						checkSymbols.push('1');
+					else
+						return false;
+			} else if (patternInput.charAt(i) == ')') {
 				if (patternInput.charAt(i-1) != '/')
-					checkSymbols.push(patternInput.charAt(i));
-		}
+					checkSymbols.pop();
+			}
 		
-		Iterator<Character> iter = checkSymbols.iterator();
-		
-		System.out.println((checkSymbols.size() % 2) + ", size is " + checkSymbols.size());
-		if (!(checkSymbols.size() % 2 == 0))
-			return false;
-		
-		int currIndex = 0;
-		char[] symbolsArr = new char[checkSymbols.size()];
-		//ex: size 10, 0-9. First half:0-4, 5-9
-		while (iter.hasNext())
-		{
-			symbolsArr[currIndex] = iter.next();
-			currIndex++;
-		}
-		
-		int halfwaySize = checkSymbols.size() / 2;
-		String firstHalf = "";
-		for (int i = 0; i < halfwaySize; i++)
-			firstHalf+= symbolsArr[i];
-		
-		String secondHalf = "";
-		for (int i = halfwaySize; i < symbolsArr.length; i++)
-			secondHalf+= symbolsArr[i];
-		
-		if (!firstHalf.equals(new StringBuilder(secondHalf).reverse().toString()))
-			return false;
-		
-		return true;
+		return checkSymbols.isEmpty();
 	}
 	
 	private String[] parsePatternTxt()
 	{
-		ArrayList<String> surrNumStr = findStringBetweenPatternInput("#");
-		ArrayList<String> surrChStr = findStringBetweenPatternInput("*");
-		String[] retArr = new String[surrNumStr.size() + surrChStr.size() + 1];
-		
-		int currIndex = 0;
-		for (String curr : surrNumStr)
-		{
-			retArr[currIndex] = curr;
-			currIndex++;
-		}
-		retArr[currIndex] = " ";
-		currIndex++;
-		for (String curr : surrChStr)
-		{
-			retArr[currIndex] = curr;
-			currIndex++;
-		}
-		
-		return retArr;
-	}
-	
-	private ArrayList<String> findStringBetweenPatternInput(String splitChar)
-	{
 		int index = -1;
 		String tempStr = "";
 		ArrayList<String> temp = new ArrayList<String>();
+		
 		//while next char isn't the symbol
-		while(patternInput.indexOf(splitChar, index+1) >= 0) {
-		    index = patternInput.indexOf(splitChar, index+1);
+		while(patternInput.indexOf("(", index+1) >= 0) {
+		    index = patternInput.indexOf("(", index+1);
 		    tempStr = "";
-		    if (index != -1 && (index <= (patternInput.length() - 3)) && (patternInput.indexOf(splitChar, index+1) >= 0))
+		    if (index != -1 && (index <= (patternInput.length() - 3)) && (patternInput.indexOf(")", index+1) >= 0))
 		    {
 		    	int tempIndex = 1;
-		    	while (patternInput.charAt(index + tempIndex) != splitChar.charAt(0))
+		    	while (patternInput.charAt(index + tempIndex) != ")".charAt(0))
 		    	{
 		    		tempStr += patternInput.charAt(index + tempIndex);
 		    		tempIndex++;
@@ -404,9 +367,9 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		    }
 		}
 		
-		return temp;
-		
+		return ((String[])temp.toArray());
 	}
+
 	private void updateReqTable()
 	{
 		requiredChars = requiredCharsTxt.getText();
@@ -629,6 +592,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		emptyAllowed = emptyChkBx.isSelected();
 		numbersAllowed = numbersAllowedChkBx.isSelected();
 		lettersAllowed = lettersAllowedChkBx.isSelected();
+		Color red = new Color(255, 69, 0);
 		
 		if (useTables.isSelected())
 		{
@@ -638,24 +602,26 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	
 			if (!checkIllegalCharsTxt())
 			{
-				illegalCharsTxt.setBackground(new Color(255, 69, 0));
+				illegalCharsTxt.setBackground(red);
 				return false;
 			}
 			else
 				illegalCharsTxt.setBackground(new Color(255, 255, 255));
+			
 	
 			if (!checkRequiredCharsTxt())
 			{
-				requiredCharsTxt.setBackground(new Color(255, 69, 0));
+				requiredCharsTxt.setBackground(red);
 				return false;
 			}
 			else
 				requiredCharsTxt.setBackground(new Color(255, 255, 255));
 	
+			
 			if (!checkReqAndIllChars())
 			{
-				requiredCharsTxt.setBackground(new Color(255, 69, 0));
-				illegalCharsTxt.setBackground(new Color(255, 69, 0));
+				requiredCharsTxt.setBackground(red);
+				illegalCharsTxt.setBackground(red);
 				return false;
 			}
 			else
@@ -679,7 +645,6 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 
 	private boolean checkIllegalCharsTxt()
 	{
-
 		String checkString = createString();
 		checkString = checkString.substring(checkString.indexOf(".....") + 5);
 		if (checkString.equals(""))
@@ -828,11 +793,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 						|| nonSpecificIdentifier(checkStringArrVars, j, reqCharBefore))
 							return false;
 			}
-
 		}
-
-
-
 		return true;
 	}
 
@@ -946,7 +907,6 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 			for (int j = 0; j < illTableModel.getColumnCount(); j++)
 			{
 				illVarString[i] += illTableModel.getValueAt(i, j) + ":::::";
-				//System.out.println("Value at " + i + ": " + illTableModel.getValueAt(i, j));
 			}
 			illVarString[i] += "-----";
 		}
