@@ -74,7 +74,7 @@ public class VariableObj {
 	{
 		this.varVerified = varVerified;
 	}
-
+	//???
 	public void createJUnitString(String varString)
 	{
 		String[] tempArr = varString.split("---");

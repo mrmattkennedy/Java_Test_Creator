@@ -101,7 +101,10 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	private final int illCharAtMost = 2;
 	private final int illCharBeginning = 3;
 	private final int illCharEnd = 4;
-	private final int illCharThrows = 4;
+	private final int illCharThrows = 5;
+	
+	private boolean isPattern = false;
+	
 	public StringVarDialogBox(VarsPanel paFrame, int row) 
 	{
 		
@@ -110,10 +113,6 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		usePattern.addActionListener(this);
 		useTables.addActionListener(this);
 		useTables.setSelected(true);
-		//usePattern.setFont(radioFonts);
-		//useTables.setFont(radioFonts);
-		//usePattern.setPreferredSize(new Dimension(100, 20));
-		//useTables.setPreferredSize(new Dimension(100, 20));
 		gridPanels = new JPanel[numPanels];
 		for (int i = 0; i < numPanels; i++)
 			gridPanels[i] = new JPanel();
@@ -185,6 +184,9 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		emptyChkBx = new JCheckBox("String can be empty: ");
 		numbersAllowedChkBx = new JCheckBox("Numbers allowed: ");
 		lettersAllowedChkBx = new JCheckBox("Letters allowed: ");
+		emptyChkBx.setSelected(true);
+		numbersAllowedChkBx.setSelected(true);
+		lettersAllowedChkBx.setSelected(true);
 
 		okBtn = new JButton("Ok");
 		helpBtn = new JButton("Help");
@@ -927,6 +929,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		String retString = "";
 		
 		if (useTables.isSelected()) {
+			isPattern = false;
 			reqVarString = new String[reqTableModel.getRowCount()];
 			illVarString = new String[illTableModel.getRowCount()];
 	
@@ -962,6 +965,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 			for (int i = 0; i < illVarString.length; i++)
 				retString += illVarString[i];
 		} else {
+			isPattern = true;
 			retString = patternTxt.getText();
 		}
 
@@ -974,7 +978,7 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		
 		if (source == okBtn) {
 			if (checkVars())
-				paFrame.sendVariableString(createString(), row);
+				paFrame.sendVariableString(createString(), row, isPattern);
 		} else if (source == cancelBtn)
 			dispose();
 		else if (source == helpBtn)
