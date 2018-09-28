@@ -316,6 +316,9 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 						return false;
 			}
 			
+			if (patternInput.charAt(patternInput.indexOf(flag) + flag.length() + 1) != '#')
+				return false;
+			
 			Stack<Character> checkSymbols = new Stack<Character>();
 			boolean isNumbers = false;
 			boolean firstCheck = true;
@@ -330,10 +333,10 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 					checkSymbols.push('1');
 				//Check if char is digit or num. If boolean flips, return false.
 				} else if (flag.charAt(i) != '_') {
-					if (!firstCheck)
+					if (!firstCheck) {
 						if (Character.isDigit(flag.charAt(i)) != isNumbers)
 							return false;
-					else
+					} else
 						firstCheck = false;
 							
 					isNumbers = (Character.isDigit(flag.charAt(i))) ? true : false;
@@ -922,39 +925,45 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	private String createString()
 	{
 		String retString = "";
-
-		reqVarString = new String[reqTableModel.getRowCount()];
-		illVarString = new String[illTableModel.getRowCount()];
-
-		for (int i = 0; i < reqVarString.length; i++)
-			reqVarString[i] = new String();
-
-		for (int i = 0; i < illVarString.length; i++)
-			illVarString[i] = new String();
-
-		for (int i = 0; i < reqVarString.length; i++)
-		{
-			for (int j = 0; j < reqTableModel.getColumnCount(); j++)	
-				reqVarString[i] += reqTableModel.getValueAt(i, j) + ":::::";
-			reqVarString[i] += "-----";
-		}
-
-		for (int i = 0; i < illVarString.length; i++)
-		{
-			for (int j = 0; j < illTableModel.getColumnCount(); j++)
+		
+		if (useTables.isSelected()) {
+			reqVarString = new String[reqTableModel.getRowCount()];
+			illVarString = new String[illTableModel.getRowCount()];
+	
+			for (int i = 0; i < reqVarString.length; i++)
+				reqVarString[i] = new String();
+	
+			for (int i = 0; i < illVarString.length; i++)
+				illVarString[i] = new String();
+	
+			for (int i = 0; i < reqVarString.length; i++)
 			{
-				illVarString[i] += illTableModel.getValueAt(i, j) + ":::::";
+				for (int j = 0; j < reqTableModel.getColumnCount(); j++)	
+					reqVarString[i] += reqTableModel.getValueAt(i, j) + ":::::";
+				
+				if (i < reqVarString.length - 1)
+					reqVarString[i] += "-----";
 			}
-			illVarString[i] += "-----";
+	
+			for (int i = 0; i < illVarString.length; i++)
+			{
+				for (int j = 0; j < illTableModel.getColumnCount(); j++)
+				{
+					illVarString[i] += illTableModel.getValueAt(i, j) + ":::::";
+				}
+				illVarString[i] += "-----";
+			}
+	
+			for (int i = 0; i < reqVarString.length; i++)
+				retString += reqVarString[i];
+	
+			retString += ".....";
+	
+			for (int i = 0; i < illVarString.length; i++)
+				retString += illVarString[i];
+		} else {
+			retString = patternTxt.getText();
 		}
-
-		for (int i = 0; i < reqVarString.length; i++)
-			retString += reqVarString[i];
-
-		retString += ".....";
-
-		for (int i = 0; i < illVarString.length; i++)
-			retString += illVarString[i];
 
 		return retString;
 	}
@@ -962,11 +971,11 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-
-		if (source == okBtn)
-			checkVars();
-				
-		else if (source == cancelBtn)
+		
+		if (source == okBtn) {
+			if (checkVars())
+				paFrame.sendVariableString(createString(), row);
+		} else if (source == cancelBtn)
 			dispose();
 		else if (source == helpBtn)
 			JOptionPane.showMessageDialog(null, "Adding text to required chars populates table.\n" + 

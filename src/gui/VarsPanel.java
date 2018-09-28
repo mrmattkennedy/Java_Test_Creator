@@ -102,6 +102,12 @@ public class VarsPanel extends JPanel implements ActionListener
 	{
 		tableModel.varChecked(row, varString);
 	}
+	
+	public void sendVariableString(String infoStr, int row) {
+		String temp = infoStr;
+		System.out.println(tableModel.getValueAt(row, 2));
+		System.out.println(temp);
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
