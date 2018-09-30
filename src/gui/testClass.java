@@ -1,19 +1,16 @@
 package gui;
-import java.util.Map;
-import java.util.Set;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class testClass {
 	String s1;
 	public static void main(String[] args)
 	{
-		boolean t = false;
-		System.out.println(t);
-		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
-		Thread[] threadArray = threadSet.toArray(new Thread[threadSet.size()]);
-		
-		for (int i = 0; i < threadArray.length; i++)
-			System.out.println(threadArray[i].getName());
-		
-		
+		Random rand = new Random();
+		String s = "";
+		for (int i = 0; i < 100; i++)
+			for (int j = 0; j < rand.nextInt(5); j++)
+				System.out.println(j);
+		System.out.println(s);
 	}
 }

@@ -105,8 +105,7 @@ public class VarsPanel extends JPanel implements ActionListener
 	
 	public void sendVariableString(String infoStr, int row, boolean isPattern) {
 		String temp = infoStr;
-		System.out.println(tableModel.getValueAt(row, 2));
-		System.out.println(temp);
+		TestCaseCreator.StringTest(infoStr, isPattern, ((String)table.getValueAt(table.getSelectedRow(), 0)));
 	}
 
 	public void actionPerformed(ActionEvent e) {

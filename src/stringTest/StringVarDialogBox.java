@@ -732,7 +732,17 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 			if (numCount == 52)
 				return false;
 		}
-
+		
+		int remaining = 0;
+		for (int i = 0; i < checkStringArray.length; i++) {
+			remaining = 0;
+			if (checkStringArrVars[i][illCharBeginning].equals("true")) 
+				remaining++;
+			if (checkStringArrVars[i][illCharEnd].equals("true")) 
+				remaining++;
+			if (Integer.parseInt(checkStringArrVars[i][illCharAtMost]) - remaining < 0)
+				return false;
+		}
 
 		return true;
 	}
