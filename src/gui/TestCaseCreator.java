@@ -134,8 +134,8 @@ public abstract class TestCaseCreator {
 				"        temp = temp.substring(0,randInt) + \"" + illegalChar[illChar] + "\" + temp.substring(randInt);\n" +
 				"        " + getSetAndGetPrefix() + ".set" + varName + "(temp);\n" +
 				"    }\n";
-		stringNotExpectException(illegalChar);
 		testCases.append(testCase);
+		stringNotExpectException(illegalChar);
 	}
 	
 	private static void stringCreateTrueIllegalTestAtMost(String[] illegalChar) {
@@ -206,20 +206,28 @@ public abstract class TestCaseCreator {
 			stringCreateTrueReqCount(requiredChar);
 						
 			//Always required at beginning
-			if (requiredChar[reqCharBeginning].equals("true"))
-				stringCreateRequiredTestAtBeg(requiredChar);
+			if (requiredChar[reqCharBeginning].equals("true")) {
+				stringCreateFalseRequiredTestAtBeg(requiredChar);
+				stringCreateTrueRequiredTestAtBeg(requiredChar);
+			}
 			
 			//Always required at end
-			if (requiredChar[reqCharEnd].equals("true")) 
-				stringCreateRequiredTestAtEnd(requiredChar);
+			if (requiredChar[reqCharEnd].equals("true")) {
+				stringCreateFalseRequiredTestAtEnd(requiredChar);
+				stringCreateTrueRequiredTestAtEnd(requiredChar);
+			}
 			
 			//Always required char before.
-			if (!requiredChar[reqCharBefore].equals("N/A")) 
-				stringCreateRequiredTestCharBefore(requiredChar);
+			if (!requiredChar[reqCharBefore].equals("N/A")) {
+				stringCreateFalseRequiredTestCharBefore(requiredChar);
+				stringCreateTrueRequiredTestCharBefore(requiredChar);
+			}
 			
 			//Always required char before.
-			if (!requiredChar[reqCharAfter].equals("N/A")) 
-				stringCreateRequiredTestCharAfter(requiredChar);
+			if (!requiredChar[reqCharAfter].equals("N/A")) {
+				stringCreateFalseRequiredTestCharAfter(requiredChar);
+				stringCreateTrueRequiredTestCharAfter(requiredChar);
+			}
 		}
 		return "";
 	}
@@ -259,10 +267,10 @@ public abstract class TestCaseCreator {
 		testCases.append(testCase);
 	}
 	
-	private static void stringCreateRequiredTestAtBeg(String[] requiredChar) {
+	private static void stringCreateFalseRequiredTestAtBeg(String[] requiredChar) {
 		String testCase = "";
 		stringExpectException(requiredChar);
-		testCase += "public void " + varName + "ReqChar" + requiredChar[reqChar] + "AtBeg() {\n" + 
+		testCase += "public void " + varName + "FalseReqChar" + requiredChar[reqChar] + "AtBeg() {\n" + 
 				"    String temp = fillerText\n" + 
 				"    for (int i = 1 ; i < fillerText.length(); i++) {\n" + 
 				"        temp = fillerText\n" + 
@@ -274,10 +282,20 @@ public abstract class TestCaseCreator {
 		testCases.append(testCase);
 	}
 	
-	private static void stringCreateRequiredTestAtEnd(String[] requiredChar) {
+	private static void stringCreateTrueRequiredTestAtBeg(String[] requiredChar) {
 		String testCase = "";
 		stringExpectException(requiredChar);
-		testCase += "public void " + varName + "ReqChar" + requiredChar[reqChar] + "AtBeg() {\n" + 
+		testCase += "public void " + varName + "TrueReqChar" + requiredChar[reqChar] + "AtBeg() {\n" + 
+				"    String temp = \"" + requiredChar[reqChar] + "\" + fillerText\n" +
+				"    assertEquals(temp, " + getSetAndGetPrefix() + ".get" + varName + "());\n" +
+				"}\n\n\n";
+		testCases.append(testCase);
+	}
+	
+	private static void stringCreateFalseRequiredTestAtEnd(String[] requiredChar) {
+		String testCase = "";
+		stringExpectException(requiredChar);
+		testCase += "public void " + varName + "FalseReqChar" + requiredChar[reqChar] + "AtBeg() {\n" + 
 				"    String temp = fillerText\n" + 
 				"    for (int i = 0 ; i < fillerLength - 1; i++) \n" + 
 				"        temp = fillerText\n" +  
@@ -289,10 +307,37 @@ public abstract class TestCaseCreator {
 		testCases.append(testCase);
 	}
 	
-	private static void stringCreateRequiredTestCharBefore(String[] requiredChar) {
+	private static void stringCreateTrueRequiredTestAtEnd(String[] requiredChar) {
 		String testCase = "";
 		stringExpectException(requiredChar);
-		testCase += "public void " + varName + "ReqChar" + requiredChar[reqChar] + "CharBefore() {\n" + 
+		testCase += "public void " + varName + "TrueTrueReqChar" + requiredChar[reqChar] + "AtBeg() {\n" + 
+				"    String temp = fillerText\n + \"" + requiredChar[reqChar] + "\"\n" +
+				"    assertEquals(temp, " + getSetAndGetPrefix() + ".get" + varName + "());\n" +
+				"}\n\n\n";
+		testCases.append(testCase);
+	}
+	
+	private static void stringCreateFalseRequiredTestCharBefore(String[] requiredChar) {
+		String testCase = "";
+		stringExpectException(requiredChar);
+		testCase += "public void " + varName + "FalseReqChar" + requiredChar[reqChar] + "CharBefore() {\n" + 
+				"    String temp = fillerText\n" + 
+				"    int randInt = 0;\n" + 
+				"    for (int i = " + getBadCategoryStart(requiredChar) + "; i < " + (getBadCategoryStart(requiredChar) + getBadCategorySize(requiredChar)) + " - 1; i++) {\n" + 
+				"        temp = fillerText\n" + 
+				"        randInt = rand.nextInt(fillerLength - 1) + 1;\n" + 
+				"        temp = temp.substring(0, randInt) + (char)i + " + requiredChar[reqChar] + "\" + temp.substring(randInt);\n" +
+				"        " + getSetAndGetPrefix() + ".set" + varName + "(temp);\n" +
+				"        assertTrue(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" + 
+				"    }\n" +
+				"}\n\n\n";
+		testCases.append(testCase);
+	}
+	
+	private static void stringCreateTrueRequiredTestCharBefore(String[] requiredChar) {
+		String testCase = "";
+		stringExpectException(requiredChar);
+		testCase += "public void " + varName + "TrueReqChar" + requiredChar[reqChar] + "CharBefore() {\n" + 
 				"    String temp = fillerText\n" + 
 				"    int randInt = 0;\n" + 
 				"    for (int i = " + getCategoryStart(requiredChar) + "; i < " + (getCategoryStart(requiredChar) + getCategorySize(requiredChar)) + " - 1; i++) {\n" + 
@@ -306,10 +351,27 @@ public abstract class TestCaseCreator {
 		testCases.append(testCase);
 	}
 	
-	private static void stringCreateRequiredTestCharAfter(String[] requiredChar) {
+	private static void stringCreateFalseRequiredTestCharAfter(String[] requiredChar) {
 		String testCase = "";
 		stringExpectException(requiredChar);
-		testCase += "public void " + varName + "ReqChar" + requiredChar[reqChar] + "CharBefore() {\n" + 
+		testCase += "public void " + varName + "FalseReqChar" + requiredChar[reqChar] + "CharBefore() {\n" + 
+				"    String temp = fillerText\n" + 
+				"    int randInt = 0;\n" + 
+				"    for (int i = " + getBadCategoryStart(requiredChar) + "; i < " + (getBadCategoryStart(requiredChar) + getBadCategorySize(requiredChar)) + " - 1; i++) {\n" + 
+				"        temp = fillerText\n" + 
+				"        randInt = rand.nextInt(fillerLength - 1) + 1;\n" + 
+				"        temp = temp.substring(0, randInt) + " + requiredChar[reqChar] + "\" + (char)i + temp.substring(randInt);\n" +
+				"        " + getSetAndGetPrefix() + ".set" + varName + "(temp);\n" +
+				"        assertTrue(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" + 
+				"    }\n" +
+				"}\n\n\n";
+		testCases.append(testCase);
+	}
+	
+	private static void stringCreateTrueRequiredTestCharAfter(String[] requiredChar) {
+		String testCase = "";
+		stringExpectException(requiredChar);
+		testCase += "public void " + varName + "TrueReqChar" + requiredChar[reqChar] + "CharBefore() {\n" + 
 				"    String temp = fillerText\n" + 
 				"    int randInt = 0;\n" + 
 				"    for (int i = " + getCategoryStart(requiredChar) + "; i < " + (getCategoryStart(requiredChar) + getCategorySize(requiredChar)) + " - 1; i++) {\n" + 
@@ -357,23 +419,38 @@ public abstract class TestCaseCreator {
 			remaining--;
 		return remaining;
 	}
-//
-//	private static String getCharBefore(String[] requiredChar) {
-//		String temp = requiredChar[reqCharBefore];
-//		if (temp.equals("None"))
-//			temp = "";
-//		else if (temp.equals("Any"))
-//			temp = "" + (char)(ThreadLocalRandom.current().nextInt(45, 122 + 1));
-//		else if (temp.equals("Any #"))
-//			temp = "" + (char)(ThreadLocalRandom.current().nextInt(48, 57 + 1));
-//		else if (temp.equals("Any char")) {
-//			temp = ThreadLocalRandom.current().nextBoolean() ? 
-//					"" + (char)ThreadLocalRandom.current().nextInt(65, 90 + 1) :
-//					"" + (char)ThreadLocalRandom.current().nextInt(97, 122 + 1);
-//		}
-//		
-//		return temp;
-//	}
+
+	private static int getBadCategoryStart(String[] requiredChar) {
+		String temp = requiredChar[reqCharBefore];
+		int start = 0;
+		if (temp.equals("None"))
+			start = 45;
+		else if (temp.equals("Any"))
+			start = 0;
+		else if (temp.equals("Any #"))
+			start = ThreadLocalRandom.current().nextBoolean() ? 65 : 97;
+		else if (temp.equals("Any char")) {
+			start = 48;
+		}
+		
+		return start;
+	}
+	
+	private static int getBadCategorySize(String[] requiredChar) {
+		String temp = requiredChar[reqCharBefore];
+		int size = 0;
+		if (temp.equals("None"))
+			size = 78;
+		else if (temp.equals("Any"))
+			size = 0;
+		else if (temp.equals("Any #"))
+			size = 26;
+		else if (temp.equals("Any char")) {
+			size = 10;
+		}
+		
+		return size;
+	}
 	
 	private static int getCategoryStart(String[] requiredChar) {
 		String temp = requiredChar[reqCharBefore];

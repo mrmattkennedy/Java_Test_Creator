@@ -802,6 +802,8 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 			}
 			if (totalOtherReqCount > reqCount)
 				return false;
+			
+			
 		}
 
 		for (int i = 0; i < checkStringArray.length; i++)
@@ -834,6 +836,22 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 							return false;
 			}
 		}
+		
+//		boolean charAtBeginning = false;
+//		boolean charAtEnd = false;
+//		for (int i = 0; i < checkStringArray.length; i++)
+//		{
+//			
+//			if (checkStringArrVars[i][reqCharBeginning].equals("true") && !charAtBeginning)
+//				charAtBeginning = true;
+//			else if (checkStringArrVars[i][reqCharBeginning].equals("true"))
+//				return false;
+//			
+//			if (checkStringArrVars[i][reqCharEnd].equals("true") && !charAtEnd)
+//				charAtBeginning = true;
+//			else if (checkStringArrVars[i][reqCharEnd].equals("true"))
+//				return false;
+//		}
 		return true;
 	}
 
@@ -878,9 +896,10 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 		for (int i = 0; i < checkReqStringArray.length; i++)
 			for (int j = 0; j < checkIllStringArray.length; j++)	
 				if (checkIllStringArrVars[j][illCharAlways].equals("false"))
-					if (Integer.parseInt(checkIllStringArrVars[j][illCharAtMost]) < 
-							Integer.parseInt(checkIllStringArrVars[j][reqCharCount]))
-						return false;
+					if (checkIllStringArrVars[j][illChar].equals(checkReqStringArrVars[j][reqChar]))
+						if (Integer.parseInt(checkIllStringArrVars[j][illCharAtMost]) < 
+								Integer.parseInt(checkReqStringArrVars[j][reqCharCount]))
+							return false;
 
 		for (int i = 0; i < checkReqStringArray.length; i++)
 			for (int j = 0; j < checkIllStringArray.length; j++)	
@@ -899,6 +918,8 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 								== (checkIllStringArrVars[j][illChar].charAt(0)))
 
 							return false;
+		
+		
 
 
 		return true;
