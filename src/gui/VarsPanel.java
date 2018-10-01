@@ -4,6 +4,7 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.ListSelectionModel;
 
 import stringTest.StringVarDialogBox;
@@ -14,6 +15,7 @@ import javax.swing.JOptionPane;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 import java.awt.Point;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -32,6 +34,7 @@ public class VarsPanel extends JPanel implements ActionListener
 	private JButton viewTestsBtn;
 	
 	private Font btnFont;
+	private HashMap<Integer, JDialog> currentEntries;
 
 	public VarsPanel()
 	{
@@ -65,11 +68,13 @@ public class VarsPanel extends JPanel implements ActionListener
 		table.getColumnModel().getColumn(4).setPreferredWidth(15);
 		table.getColumnModel().getColumn(3).setPreferredWidth(15);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		currentEntries = new HashMap<Integer, JDialog>();
 		
 		//table.setDefaultRenderer(Object.class, new TC_TableCellRenderer()); 
 
 		JScrollPane pane = new JScrollPane(table);
 		pane.setPreferredSize(new Dimension(575, 90));
+		
 
 		add(new JScrollPane(pane));
 		add(addBtn);
@@ -95,7 +100,11 @@ public class VarsPanel extends JPanel implements ActionListener
 		if (varType.equals("String")) 
 		{
 			int row = table.getSelectedRow();
-			new StringVarDialogBox(this, row);
+			if (!currentEntries.containsKey(row))
+				currentEntries.put(row,new StringVarDialogBox(this, row));
+			else
+				currentEntries.get(row).setVisible(true);
+			
 		}		
 	}
 	
@@ -111,10 +120,11 @@ public class VarsPanel extends JPanel implements ActionListener
 	
 	public void sendVariableString(String infoStr, int row, boolean isPattern) {
 		TestCaseCreator.StringTest(infoStr, isPattern, 
-				((String)table.getValueAt(table.getSelectedRow(), 0)),
-				((String)table.getValueAt(table.getSelectedRow(), 2)),
-				((String)table.getValueAt(table.getSelectedRow(), 3)));
+				((String)table.getValueAt(row, 0)),
+				((String)table.getValueAt(row, 2)),
+				((String)table.getValueAt(row, 3)), row);
 	}
+	
 
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();

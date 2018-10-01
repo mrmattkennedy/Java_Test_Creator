@@ -1,6 +1,11 @@
 package gui;
 
-//todo: add instance variable, then finish adding filler text to all 3.	
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+//todo: add method to get key from here, send to varspanel, varspanel can check the key values here.
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -20,33 +25,45 @@ public abstract class TestCaseCreator {
 	private static final int illCharEnd = 4;
 	private static final int illCharThrows = 5;
 	
-	private static StringBuilder testCases;
+	private static StringBuilder tempTestCases;
+	private static Map<Integer, String> allTestCases = new HashMap<Integer, String>();
 	private static String varName;
 	private static String fillerText;
 	private static String className;
 	private static boolean isStatic;
 	
 	public static void StringTest(String dataString, boolean isPattern, 
-			String name, String className, String isStatic) {
-		testCases = new StringBuilder();
+			String name, String className, String isStatic, int row) {
+		
+		tempTestCases = new StringBuilder();
 		varName = name;
 		fillerText = "";
 		TestCaseCreator.className = className;
 		TestCaseCreator.isStatic = Boolean.valueOf(isStatic);
+		String[] allIll;
+		String[] allReq;
+		String tempIll;
+		String tempReq;
 		
 		if (!isPattern) {
 			
 			//For some reason, string.split isn't working, so manually split the string into 2.
-			String tempReq = dataString.substring(0, dataString.indexOf("....."));
-			String tempIll = dataString.substring(dataString.indexOf(".....") + 5);
-			String[] allReq = tempReq.split("-----");
-			String[] allIll = tempIll.split("-----");
-			if (allIll.length > 1)
-				stringCreateIllegalTests(allIll);
-			if (allReq.length > 1)
-				stringCreateRequiredTests(allReq);
+			if (dataString.contains(".....")) {
+				tempReq = dataString.substring(0, dataString.indexOf("....."));
+				tempIll = dataString.substring(dataString.indexOf(".....") + 5);
+				stringCreateIllegalTests(tempIll.split("-----"));
+				stringCreateRequiredTests(tempReq.split("-----"));
+			} else {
+				String[] temp = dataString.split("-----");
+				if (temp.length == 6) 
+					stringCreateIllegalTests(dataString.split("-----"));
+				else if (temp.length == 7)
+					stringCreateRequiredTests(dataString.split("-----"));
+			}			
 			
 		}
+		System.out.println(tempTestCases);
+		allTestCases.put(row, tempTestCases.toString());
 	}
 	
 	private static String stringCreateIllegalTests(String[] allIll) {
@@ -109,7 +126,7 @@ public abstract class TestCaseCreator {
 				"        assertFalse(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" + 
 				"    }\n" + 
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateTrueIllegalTestAlways(String[] illegalChar) {
@@ -119,7 +136,7 @@ public abstract class TestCaseCreator {
 				"    String temp = fillerText;" + 
 				"    assertEquals(temp, " + getSetAndGetPrefix() + ".get" + varName + "());\n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateFalseIllegalTestAtMost(String[] illegalChar) {
@@ -134,7 +151,7 @@ public abstract class TestCaseCreator {
 				"        temp = temp.substring(0,randInt) + \"" + illegalChar[illChar] + "\" + temp.substring(randInt);\n" +
 				"        " + getSetAndGetPrefix() + ".set" + varName + "(temp);\n" +
 				"    }\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 		stringNotExpectException(illegalChar);
 	}
 	
@@ -153,7 +170,7 @@ public abstract class TestCaseCreator {
 				"        assertEquals(temp, " + getSetAndGetPrefix() + ".get" + varName + "());\n" +
 				"    }\n" + 
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateIllegalTestAtBeg(String[] illegalChar) {
@@ -162,7 +179,7 @@ public abstract class TestCaseCreator {
 		testCase += "public void " + varName + "IllChar" + illegalChar[illChar] + "AtBeg() {\n" + 
 				"    String temp = \"" + illegalChar[illChar] + "\" + fillerText;\n" +
 				"    " + getSetAndGetPrefix() + ".set" + varName + "(temp);\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 		stringNotExpectException(illegalChar);
 	}
 	
@@ -172,7 +189,7 @@ public abstract class TestCaseCreator {
 		testCase += "public void " + varName + "IllChar" + illegalChar[illChar] + "AtEnd() {\n" + 
 				"    String temp = fillerText + \"" + illegalChar[illChar] + "\";\n" +
 				"    " + getSetAndGetPrefix() + ".set" + varName + "(temp);\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 		stringNotExpectException(illegalChar);
 	}
 	
@@ -182,23 +199,6 @@ public abstract class TestCaseCreator {
 		for (int i = 0; i < allReq.length; i++)
 			requiredCharVals[i] = allReq[i].split(":::::");
 		
-//		int randomNum;
-//		boolean getFillerChar = false;
-//		//Get filler char
-//		while (!getFillerChar) {
-//			fillerText = "";
-//			getFillerChar = true;
-//			
-//			for (int i = 0; i < 8; i++) {
-//				randomNum = ThreadLocalRandom.current().nextInt(45, 122 + 1);
-//				fillerText += (char)randomNum;
-//			}
-//			
-//			for (String[] illegalChar : requiredCharVals) 
-//				for (int i = 0; i < fillerText.length(); i++)
-//					if (illegalChar[illChar].equals(fillerText.charAt(i)))
-//						getFillerChar = false;
-//		}
 		//Create test if never allowed.
 		for (String[] requiredChar : requiredCharVals) {
 			//Max allowed
@@ -248,7 +248,7 @@ public abstract class TestCaseCreator {
 				"        assertFalse(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" +
 				"    }\n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateTrueReqCount(String[] requiredChar) {
@@ -264,7 +264,7 @@ public abstract class TestCaseCreator {
 				"    }\n" +
 				"    assertEquals(temp, " + getSetAndGetPrefix() + ".get" + varName + "());\n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateFalseRequiredTestAtBeg(String[] requiredChar) {
@@ -279,7 +279,7 @@ public abstract class TestCaseCreator {
 				"        assertFalse(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" +
 				"    }\n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateTrueRequiredTestAtBeg(String[] requiredChar) {
@@ -289,7 +289,7 @@ public abstract class TestCaseCreator {
 				"    String temp = \"" + requiredChar[reqChar] + "\" + fillerText\n" +
 				"    assertEquals(temp, " + getSetAndGetPrefix() + ".get" + varName + "());\n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateFalseRequiredTestAtEnd(String[] requiredChar) {
@@ -304,7 +304,7 @@ public abstract class TestCaseCreator {
 				"        assertFalse(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" +
 				"    \n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateTrueRequiredTestAtEnd(String[] requiredChar) {
@@ -314,7 +314,7 @@ public abstract class TestCaseCreator {
 				"    String temp = fillerText\n + \"" + requiredChar[reqChar] + "\"\n" +
 				"    assertEquals(temp, " + getSetAndGetPrefix() + ".get" + varName + "());\n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateFalseRequiredTestCharBefore(String[] requiredChar) {
@@ -331,7 +331,7 @@ public abstract class TestCaseCreator {
 				"        assertTrue(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" + 
 				"    }\n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateTrueRequiredTestCharBefore(String[] requiredChar) {
@@ -348,7 +348,7 @@ public abstract class TestCaseCreator {
 				"        assertTrue(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" + 
 				"    }\n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateFalseRequiredTestCharAfter(String[] requiredChar) {
@@ -365,7 +365,7 @@ public abstract class TestCaseCreator {
 				"        assertTrue(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" + 
 				"    }\n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringCreateTrueRequiredTestCharAfter(String[] requiredChar) {
@@ -382,29 +382,29 @@ public abstract class TestCaseCreator {
 				"        assertTrue(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" + 
 				"    }\n" +
 				"}\n\n\n";
-		testCases.append(testCase);
+		tempTestCases.append(testCase);
 	}
 	
 	private static void stringExpectException(String[] charToCheck) {
 		if (charToCheck.length == 6)
 			if (charToCheck[illCharThrows].equals("true")) {
-				testCases.append("@Test(expected = Exception.class)\n");
+				tempTestCases.append("@Test(expected = Exception.class)\n");
 			} else {
-				testCases.append("@Test\n");
+				tempTestCases.append("@Test\n");
 			}
 		else if (charToCheck.length == 7) 
 			if (charToCheck[reqCharThrows].equals("true")) {
-				testCases.append("@Test(expected = Exception.class)\n");
+				tempTestCases.append("@Test(expected = Exception.class)\n");
 			} else {
-				testCases.append("@Test\n");
+				tempTestCases.append("@Test\n");
 			}
 	}
 	
 	private static void stringNotExpectException(String[] illegalChar) {
 		if (!illegalChar[illCharThrows].equals("true")) {
-			testCases.append("    assertFalse(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n");
+			tempTestCases.append("    assertFalse(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n");
 		}
-		testCases.append("}\n\n\n");
+		tempTestCases.append("}\n\n\n");
 	}
 	
 	private static String getSetAndGetPrefix() {
@@ -484,7 +484,7 @@ public abstract class TestCaseCreator {
 	}
 	
 	public static StringBuilder getTestCases() {
-		return testCases;
+		return tempTestCases;
 	}
 	
 	
