@@ -29,6 +29,7 @@ public class VarsPanel extends JPanel implements ActionListener
 	private JButton editBtn;
 	private JButton deleteBtn;
 	private JButton helpBtn;
+	private JButton viewTestsBtn;
 	
 	private Font btnFont;
 
@@ -38,21 +39,25 @@ public class VarsPanel extends JPanel implements ActionListener
 		editBtn = new JButton("Edit");
 		deleteBtn = new JButton("Delete");
 		helpBtn = new JButton("Help");
+		viewTestsBtn = new JButton("View tests");
 	
 		addBtn.setPreferredSize(new Dimension(100, 40));
 		editBtn.setPreferredSize(new Dimension(100, 40));
 		deleteBtn.setPreferredSize(new Dimension(100, 40));
 		helpBtn.setPreferredSize(new Dimension(100, 40));
+		viewTestsBtn.setPreferredSize(new Dimension(100, 40));
 
 		editBtn.addActionListener(this);
 		addBtn.addActionListener(this);
 		deleteBtn.addActionListener(this);
 		helpBtn.addActionListener(this);
+		viewTestsBtn.addActionListener(this);
 
 		btnFont = new Font("Helvetica", Font.BOLD, 14);
 		editBtn.setFont(btnFont);
 		deleteBtn.setFont(btnFont);
 		helpBtn.setFont(btnFont);
+		viewTestsBtn.setFont(btnFont);
 		
 		tableModel = new TableModel();
 		table = new JTable(tableModel);
@@ -71,6 +76,7 @@ public class VarsPanel extends JPanel implements ActionListener
 		add(editBtn);
 		add(deleteBtn);
 		add(helpBtn);
+		add(viewTestsBtn);
 	}
 
 	private void addTableMouseListener()
@@ -104,8 +110,10 @@ public class VarsPanel extends JPanel implements ActionListener
 	}
 	
 	public void sendVariableString(String infoStr, int row, boolean isPattern) {
-		String temp = infoStr;
-		TestCaseCreator.StringTest(infoStr, isPattern, ((String)table.getValueAt(table.getSelectedRow(), 0)));
+		TestCaseCreator.StringTest(infoStr, isPattern, 
+				((String)table.getValueAt(table.getSelectedRow(), 0)),
+				((String)table.getValueAt(table.getSelectedRow(), 2)),
+				((String)table.getValueAt(table.getSelectedRow(), 3)));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -140,6 +148,9 @@ public class VarsPanel extends JPanel implements ActionListener
 								
 								
 		}
-
+		else if (source == viewTestsBtn)
+		{
+			new TestCaseDisplay(TestCaseCreator.getTestCases());
+		}
 	}
 }

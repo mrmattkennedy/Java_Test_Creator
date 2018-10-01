@@ -156,7 +156,6 @@ public class ClassPanel extends JPanel implements ActionListener {
 
 				String line;
 				while ((line = br.readLine()) != null) {
-					System.out.println(line);
 					fileOutput.append(line);
 					fileOutput.append("\n");
 				}

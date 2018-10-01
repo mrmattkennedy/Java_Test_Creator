@@ -12,8 +12,7 @@ class JUnitTests {
 	@Test
 	void test() {
 		String s = "ABCDEF";
-		s.sub
-		assertEquals(1, 1);
+		
 	}
 
 }
