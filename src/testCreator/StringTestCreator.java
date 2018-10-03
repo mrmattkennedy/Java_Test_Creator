@@ -1,16 +1,13 @@
-package gui;
-
-import java.util.ArrayList;
+package testCreator;
+//todo: add buttons to test case display to edit the changes.
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //todo: add method to get key from here, send to varspanel, varspanel can check the key values here.
 
 import java.util.concurrent.ThreadLocalRandom;
-public class TestCaseCreator {
+public class StringTestCreator {
 	private static final int reqChar = 0;
 	private static final int reqCharCount = 1;
 	private static final int reqCharBeginning = 2;
@@ -32,7 +29,7 @@ public class TestCaseCreator {
 	private String className;
 	private boolean isStatic;
 	
-	public TestCaseCreator(String dataString, boolean isPattern, 
+	public StringTestCreator(String dataString, boolean isPattern, 
 			String name, String className, String isStatic, int row) {
 		
 		tempTestCases = new StringBuilder();
@@ -65,6 +62,8 @@ public class TestCaseCreator {
 				else if (tempSplit.length == 7)
 					stringCreateRequiredTests(temp);
 			}
+		} else {
+			
 		}
 //		Object[] arr = allTestCases.keySet().toArray();
 //		for (int i = 0; i < arr.length; i++)
@@ -149,7 +148,7 @@ public class TestCaseCreator {
 		String testCase = "";
 		stringExpectException(illegalChar);
 		testCase += "public void " + varName + "TrueIllChar" + illegalChar[illChar] + "() {\n" + 
-				"    String temp = fillerText;" + 
+				"    String temp = fillerText;\n" + 
 				"    assertEquals(temp, " + getSetAndGetPrefix() + ".get" + varName + "());\n" +
 				"}\n\n\n";
 		tempTestCases.append(testCase);

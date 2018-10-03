@@ -8,6 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.ListSelectionModel;
 
 import stringTest.StringVarDialogBox;
+import testCreator.StringTestCreator;
 
 import javax.swing.JOptionPane;
 
@@ -119,7 +120,7 @@ public class VarsPanel extends JPanel implements ActionListener
 	}
 	
 	public void sendVariableString(String infoStr, int row, boolean isPattern) {
-		new TestCaseCreator(infoStr, isPattern, 
+		new StringTestCreator(infoStr, isPattern, 
 				((String)table.getValueAt(row, 0)),
 				((String)table.getValueAt(row, 2)),
 				((String)table.getValueAt(row, 3)), row);
@@ -160,7 +161,7 @@ public class VarsPanel extends JPanel implements ActionListener
 		}
 		else if (source == viewTestsBtn)
 		{
-			new TestCaseDisplay(TestCaseCreator.getTestCases());
+			new TestCaseDisplay(StringTestCreator.getTestCases());
 		}
 	}
 }

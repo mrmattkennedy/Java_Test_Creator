@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -24,6 +25,8 @@ public class TestCaseDisplay extends JDialog implements ActionListener{
 		areaScrollPane = new JScrollPane(textArea);
 		areaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		areaScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		textArea.setBackground(Color.decode("#232334"));
+		textArea.setForeground(Color.decode("#AACCFF"));
 		
 		displayData(dataToDisplay);
 		add(areaScrollPane);
