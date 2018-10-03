@@ -119,7 +119,7 @@ public class VarsPanel extends JPanel implements ActionListener
 	}
 	
 	public void sendVariableString(String infoStr, int row, boolean isPattern) {
-		TestCaseCreator.StringTest(infoStr, isPattern, 
+		new TestCaseCreator(infoStr, isPattern, 
 				((String)table.getValueAt(row, 0)),
 				((String)table.getValueAt(row, 2)),
 				((String)table.getValueAt(row, 3)), row);

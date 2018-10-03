@@ -973,7 +973,8 @@ public class StringVarDialogBox extends JDialog implements ActionListener
 				{
 					illVarString[i] += illTableModel.getValueAt(i, j) + ":::::";
 				}
-				illVarString[i] += "-----";
+				if (i < illVarString.length - 1)
+					illVarString[i] += "-----";
 			}
 	
 			for (int i = 0; i < reqVarString.length; i++)
