@@ -9,6 +9,7 @@ import javax.swing.ListSelectionModel;
 
 import stringTest.StringVarDialogBox;
 import testCreator.StringTestCreator;
+import testCreator.TestCaseDisplay;
 
 import javax.swing.JOptionPane;
 

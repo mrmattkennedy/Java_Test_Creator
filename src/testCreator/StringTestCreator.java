@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-//todo: add method to get key from here, send to varspanel, varspanel can check the key values here.
+//todo: parse pattern \E = exception
 
 import java.util.concurrent.ThreadLocalRandom;
 public class StringTestCreator {
@@ -63,12 +63,11 @@ public class StringTestCreator {
 					stringCreateRequiredTests(temp);
 			}
 		} else {
-			
+			stringCreatePatternTests(dataString);
 		}
 //		Object[] arr = allTestCases.keySet().toArray();
 //		for (int i = 0; i < arr.length; i++)
 //			System.out.println(arr.toString());
-			
 		allTestCases.put(row, tempTestCases.toString());
 	}
 		
@@ -133,9 +132,9 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(illegalChar);
 		testCase += "public void " + varName + "FalseIllChar" + illegalChar[illChar] + "() {\n" + 
-				"    String temp = \"\"\n" + 
+				"    String temp = \"\";\n" + 
 				"    for (int i = 0 ; i < fillerText.length(); i++) {\n" + 
-				"        temp = fillerText\n" + 
+				"        temp = fillerText;\n" + 
 				"        temp = temp.substring(0,i) + \"" + illegalChar[illChar] + "\" + temp.substring(i);\n" +
 				"        " + getSetAndGetPrefix() + ".set" + varName + "(temp);\n" +
 				"        assertFalse(temp.equals(" + getSetAndGetPrefix() + ".get" + varName + "()));\n" + 
@@ -159,7 +158,7 @@ public class StringTestCreator {
 		stringExpectException(illegalChar);
 		
 		testCase += "public void " + varName + "FalseIllChar" + illegalChar[illChar] + "AtMost() {\n" + 
-				"    String temp = \"\"\n" + 
+				"    String temp = \"\";\n" + 
 				"    int randInt = 0;\n" + 
 				"    for (int i = 0 ; i < " + Integer.parseInt(illegalChar[illCharAtMost]) + " + 1; i++) {\n" +
 				"        randInt = rand.nextInt(fillerLength);\n" + 
@@ -175,7 +174,7 @@ public class StringTestCreator {
 		stringExpectException(illegalChar);
 		
 		testCase += "public void " + varName + "TrueIllChar" + illegalChar[illChar] + "AtMost() {\n" + 
-				"    String temp = \"\"\n" + 
+				"    String temp = \"\";\n" + 
 				"    int randInt = 0;\n" + 
 				"    for (int i = 0 ; i < " + Integer.parseInt(illegalChar[illCharAtMost]) + "; i++) {\n" +
 				"        randInt = rand.nextInt(fillerLength);\n" + 
@@ -251,7 +250,7 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(requiredChar);
 		testCase += "public void " + varName + "FalseReqChar" + requiredChar[reqChar] + "() {\n" + 
-				"    String temp = \"\"\n" + 
+				"    String temp = \"\";\n" + 
 				"    int randInt = 0;\n" + 
 				"    for (int i = 1; i < " + getRemaining(requiredChar) + " + 1; i++) {\n" +
 				"        temp = fillerText;\n" +
@@ -270,7 +269,7 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(requiredChar);
 		testCase += "public void " + varName + "TrueReqChar" + requiredChar[reqChar] + "() {\n" + 
-				"    String temp = fillerText\n" + 
+				"    String temp = fillerText;\n" + 
 				"    int randInt = 0;\n" + 
 				"    for (int i = 0; i < " + getRemaining(requiredChar) + " + 1; i++) {\n" +
 				"        randInt = rand.nextInt(fillerLength);\n" + 
@@ -286,7 +285,7 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(requiredChar);
 		testCase += "public void " + varName + "FalseReqChar" + requiredChar[reqChar] + "AtBeg() {\n" + 
-				"    String temp = fillerText\n" + 
+				"    String temp = fillerText;\n" + 
 				"    for (int i = 1 ; i < fillerText.length(); i++) {\n" + 
 				"        temp = fillerText\n" + 
 				"        temp = temp.substring(0,i) + \"" + requiredChar[reqChar] + "\" + temp.substring(i);\n" +
@@ -301,7 +300,7 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(requiredChar);
 		testCase += "public void " + varName + "TrueReqChar" + requiredChar[reqChar] + "AtBeg() {\n" + 
-				"    String temp = \"" + requiredChar[reqChar] + "\" + fillerText\n" +
+				"    String temp = \"" + requiredChar[reqChar] + "\" + fillerText;\n" +
 				"    assertEquals(temp, " + getSetAndGetPrefix() + ".get" + varName + "());\n" +
 				"}\n\n\n";
 		tempTestCases.append(testCase);
@@ -311,7 +310,7 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(requiredChar);
 		testCase += "public void " + varName + "FalseReqChar" + requiredChar[reqChar] + "AtBeg() {\n" + 
-				"    String temp = fillerText\n" + 
+				"    String temp = fillerText;\n" + 
 				"    for (int i = 0 ; i < fillerLength - 1; i++) \n" + 
 				"        temp = fillerText\n" +  
 				"        temp = temp.substring(0, i) + \"" + requiredChar[reqChar] + "\" + temp.substring(i);\n" +
@@ -326,7 +325,7 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(requiredChar);
 		testCase += "public void " + varName + "TrueTrueReqChar" + requiredChar[reqChar] + "AtBeg() {\n" + 
-				"    String temp = fillerText\n + \"" + requiredChar[reqChar] + "\"\n" +
+				"    String temp = fillerText\n + \"" + requiredChar[reqChar] + "\";\n" +
 				"    assertEquals(temp, " + getSetAndGetPrefix() + ".get" + varName + "());\n" +
 				"}\n\n\n";
 		tempTestCases.append(testCase);
@@ -336,7 +335,7 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(requiredChar);
 		testCase += "public void " + varName + "FalseReqChar" + requiredChar[reqChar] + "CharBefore() {\n" + 
-				"    String temp = fillerText\n" + 
+				"    String temp = fillerText;\n" + 
 				"    int randInt = 0;\n" + 
 				"    for (int i = " + getBadCategoryStart(requiredChar) + "; i < " + (getBadCategoryStart(requiredChar) + getBadCategorySize(requiredChar)) + " - 1; i++) {\n" + 
 				"        temp = fillerText\n" + 
@@ -353,7 +352,7 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(requiredChar);
 		testCase += "public void " + varName + "TrueReqChar" + requiredChar[reqChar] + "CharBefore() {\n" + 
-				"    String temp = fillerText\n" + 
+				"    String temp = fillerText;\n" + 
 				"    int randInt = 0;\n" + 
 				"    for (int i = " + getCategoryStart(requiredChar) + "; i < " + (getCategoryStart(requiredChar) + getCategorySize(requiredChar)) + " - 1; i++) {\n" + 
 				"        temp = fillerText\n" + 
@@ -370,7 +369,7 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(requiredChar);
 		testCase += "public void " + varName + "FalseReqChar" + requiredChar[reqChar] + "CharBefore() {\n" + 
-				"    String temp = fillerText\n" + 
+				"    String temp = fillerText;\n" + 
 				"    int randInt = 0;\n" + 
 				"    for (int i = " + getBadCategoryStart(requiredChar) + "; i < " + (getBadCategoryStart(requiredChar) + getBadCategorySize(requiredChar)) + " - 1; i++) {\n" + 
 				"        temp = fillerText\n" + 
@@ -387,7 +386,7 @@ public class StringTestCreator {
 		String testCase = "";
 		stringExpectException(requiredChar);
 		testCase += "public void " + varName + "TrueReqChar" + requiredChar[reqChar] + "CharBefore() {\n" + 
-				"    String temp = fillerText\n" + 
+				"    String temp = fillerText;\n" + 
 				"    int randInt = 0;\n" + 
 				"    for (int i = " + getCategoryStart(requiredChar) + "; i < " + (getCategoryStart(requiredChar) + getCategorySize(requiredChar)) + " - 1; i++) {\n" + 
 				"        temp = fillerText\n" + 
@@ -398,6 +397,14 @@ public class StringTestCreator {
 				"    }\n" +
 				"}\n\n\n";
 		tempTestCases.append(testCase);
+	}
+	
+	private void stringCreatePatternTests(String dataString) {
+		stringPatternTestRanges(dataString);
+	}
+	
+	private void stringPatternTestRanges(String dataString) {
+		
 	}
 	
 	private void stringExpectException(String[] charToCheck) {
